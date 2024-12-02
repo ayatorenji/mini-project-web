@@ -1,18 +1,14 @@
-"use client";
-
-import React, { useState } from "react";
+import React from "react";
 import BookItem from "../components/BookItem";
+import prisma from "@/utils/db";
 
-export default function BookListPage() {
-  const [books, setBooks] = useState([
-    { id: "1", title: "Book One", author: "Author One", price: "$10" },
-    { id: "2", title: "Book Two", author: "Author Two", price: "$15" },
-    { id: "3", title: "Book Three", author: "Author Three", price: "$20" },
-  ]);
+export default async function BookListPage() {
+    const books = await prisma.book.findMany();
 
-  const deleteBook = (id: string) => {
-    setBooks(books.filter((book) => book.id !== id));
-  };
+    const deleteBook = async (id: string) => {
+      await fetch(`/api/books/${id}`, { method: "DELETE" });
+      window.location.reload();
+    };
 
   return (
     <div className="container mx-auto p-4">
@@ -26,6 +22,7 @@ export default function BookListPage() {
             title={book.title}
             author={book.author}
             price={book.price}
+            image={book.image}
             deleteBook={deleteBook}
           />
         ))}

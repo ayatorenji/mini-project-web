@@ -10,6 +10,7 @@ export default function EditBookPage() {
     title: "",
     author: "",
     price: "",
+    image: "",
   });
 
   useEffect(() => {
@@ -19,6 +20,7 @@ export default function EditBookPage() {
       title: params.get("title") || "",
       author: params.get("author") || "",
       price: params.get("price") || "",
+      image: params.get("image") || "",
     });
   }, []);
 
@@ -30,11 +32,40 @@ export default function EditBookPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      const formData = new FormData();
+      formData.append("file", e.target.files[0]);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.imageUrl) {
+        setFormData((prevData) => ({
+          ...prevData,
+          image: data.imageUrl,
+        }));
+      }
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock updating the book
-    console.log("Updated Book Data:", formData);
-    // Redirect to the book list page after saving
+    await fetch(`/api/books/${formData.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: formData.title,
+        author: formData.author,
+        price: formData.price,
+        image: formData.image,
+      }),
+    });
     router.push("/books");
   };
 
@@ -84,6 +115,22 @@ export default function EditBookPage() {
             required
           />
         </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2" htmlFor="image">
+            Upload Image
+          </label>
+          <input
+            type="file"
+            id="image"
+            onChange={handleFileChange}
+            className="w-full px-4 py-2 border text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        {formData.image && (
+          <div className="mb-4">
+            <img src={formData.image} alt="Book Image" className="w-32 h-32 object-cover" />
+          </div>
+        )}
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all"

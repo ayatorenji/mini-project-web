@@ -6,6 +6,7 @@ type BookItemProps = {
   title: string;
   author: string;
   price: string;
+  image: string;
   deleteBook: (id: string) => void;
 };
 
@@ -15,10 +16,12 @@ export default function BookItem({
   title,
   author,
   price,
+  image,
   deleteBook,
 }: BookItemProps) {
   return (
     <div key={id} className="flex items-center justify-between bg-white p-4 shadow-md rounded-md my-2">
+    <img src={image} alt="Book Image" className="w-16 h-16 object-cover" />
       <div>
         <span className="font-semibold text-black">{index + 1}.</span> <span className="font-semibold text-black"> {title} by {author} -{" "} </span>
         <span className="text-green-600 font-bold">{price}</span>
