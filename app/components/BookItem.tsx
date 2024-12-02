@@ -41,7 +41,7 @@ export default function BookItem({ index, id, title, author, price, image, delet
         <Link
           href={{
             pathname: "/books/edit",
-            query: { id, title, author, price },
+            query: { id },
           }}
           className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-all"
         >

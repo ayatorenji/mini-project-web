@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function EditBookPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [formData, setFormData] = useState({
     id: "",
     title: "",
@@ -13,16 +15,35 @@ export default function EditBookPage() {
     image: "",
   });
 
+  const [file, setFile] = useState<File | null>(null);
+
+  const bookId = searchParams.get("id");
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setFormData({
-      id: params.get("id") || "",
-      title: params.get("title") || "",
-      author: params.get("author") || "",
-      price: params.get("price") || "",
-      image: params.get("image") || "",
-    });
-  }, []);
+    if (bookId) {
+      // Fetch book data
+      const fetchBook = async () => {
+        try {
+          const response = await fetch(`/api/books?id=${bookId}`);
+          if (!response.ok) {
+            console.error("Failed to fetch book data");
+            return;
+          }
+          const data = await response.json();
+          setFormData({
+            id: bookId,
+            title: data.title,
+            author: data.author,
+            price: data.price,
+            image: data.image || "",
+          });
+        } catch (error) {
+          console.error("Error fetching book:", error);
+        }
+      };
+      fetchBook();
+    }
+  }, [bookId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,10 +64,10 @@ export default function EditBookPage() {
       });
 
       const data = await response.json();
-      if (data.imageUrl) {
+      if (data.filePath) {
         setFormData((prevData) => ({
           ...prevData,
-          image: data.imageUrl,
+          image: data.filePath, // Update the image path
         }));
       }
     }
@@ -54,20 +75,35 @@ export default function EditBookPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch(`/api/books/${formData.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: formData.title,
-        author: formData.author,
-        price: formData.price,
-        image: formData.image,
-      }),
-    });
-    router.push("/books");
-  };
+  
+    try {
+      const response = await fetch(`/api/books`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: formData.id, // Include the ID in the body
+          title: formData.title,
+          author: formData.author,
+          price: formData.price,
+          image: formData.image,
+        }),
+      });
+  
+      if (!response.ok) {
+        console.error("Failed to update book");
+        return;
+      }
+  
+      const updatedBook = await response.json();
+      console.log("Book updated successfully:", updatedBook);
+  
+      router.push("/books"); // Redirect back to the books page
+    } catch (error) {
+      console.error("Error updating book:", error);
+    }
+  };  
 
   return (
     <div className="container mx-auto p-4">
