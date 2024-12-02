@@ -14,9 +14,14 @@ type BookItemProps = {
 
 export default function BookItem({ index, id, title, author, price, image, deleteBook }: BookItemProps) {
 
+  const imagePath = image ? image.startsWith("/uploads/") ? image : `/uploads/${image}` : null;
+  console.log("Resolved Image Path:", imagePath);
+
   return (
     <div key={id} className="flex items-center justify-between bg-white p-4 shadow-md rounded-md my-2">
-      {image ? (<img src={image.startsWith('/uploads/') ? image : `/uploads/${image}`} alt="Book Image" className="w-16 h-16 object-cover mr-4"/>) : (
+      {imagePath ? (
+        <img src={imagePath} alt="Book Image" className="w-16 h-16 object-cover mr-4" />
+      ) : (
         <div className="w-16 h-16 flex items-center justify-center bg-gray-200 text-gray-600 font-bold mr-4">
           No Image Available
         </div>

@@ -35,7 +35,7 @@ export default function AddBookPage() {
         console.log("Image uploaded successfully:", data.filePath);
         setFormData((prevData) => ({
           ...prevData,
-          image: `/uploads/${data.filePath}`,
+          image: data.filePath,
         }));
       }
     }
