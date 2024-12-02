@@ -41,3 +41,6 @@ next-env.d.ts
 
 #image
 /public/uploads
+
+#database
+dev.db*
