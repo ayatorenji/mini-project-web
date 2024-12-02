@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 type BookItemProps = {
@@ -6,22 +8,19 @@ type BookItemProps = {
   title: string;
   author: string;
   price: string;
-  image: string;
+  image: string | null;
   deleteBook: (id: string) => void;
 };
 
-export default function BookItem({
-  index,
-  id,
-  title,
-  author,
-  price,
-  image,
-  deleteBook,
-}: BookItemProps) {
+export default function BookItem({ index, id, title, author, price, image, deleteBook }: BookItemProps) {
+
   return (
     <div key={id} className="flex items-center justify-between bg-white p-4 shadow-md rounded-md my-2">
-    <img src={image} alt="Book Image" className="w-16 h-16 object-cover" />
+      {image ? (<img src={image.startsWith('/uploads/') ? image : `/uploads/${image}`} alt="Book Image" className="w-16 h-16 object-cover mr-4"/>) : (
+        <div className="w-16 h-16 flex items-center justify-center bg-gray-200 text-gray-600 font-bold mr-4">
+          No Image Available
+        </div>
+      )}
       <div>
         <span className="font-semibold text-black">{index + 1}.</span> <span className="font-semibold text-black"> {title} by {author} -{" "} </span>
         <span className="text-green-600 font-bold">{price}</span>
