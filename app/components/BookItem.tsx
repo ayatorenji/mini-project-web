@@ -18,33 +18,32 @@ export default function BookItem({ index, id, title, author, price, image, delet
   console.log("Resolved Image Path:", imagePath);
 
   return (
-    <div key={id} className="flex items-center justify-between bg-white p-4 shadow-md rounded-md my-2">
+    <div className="flex flex-col items-center justify-between bg-white p-4 shadow-md rounded-md my-4 w-80 h-100">
       {imagePath ? (
-        <img src={imagePath} alt="Book Image" className="w-16 h-16 object-cover mr-4" />
+        <img src={imagePath} alt="Book Image" className="w-50 h-64 object-cover rounded-md mb-4" />
       ) : (
-        <div className="w-16 h-16 flex items-center justify-center bg-gray-200 text-gray-600 font-bold mr-4">
+        <div className="w-32 h-32 flex items-center justify-center bg-gray-200 text-gray-600 font-bold rounded-md mb-4">
           No Image Available
         </div>
       )}
-      <div>
-        <span className="font-semibold text-black">{index + 1}.</span> <span className="font-semibold text-black"> {title} by {author} -{" "} </span>
-        <span className="text-green-600 font-bold">{price}</span>
+      <div className="text-center mb-4">
+        <span className="font-semibold text-black block">{index + 1}. {title}</span>
+        <span className="text-gray-700 block">by {author}</span>
+        <span className="text-green-600 font-bold block">${price}</span>
       </div>
-      <div className="flex items-center">
-        {/* Delete Button */}
+      <div className="flex justify-between w-full">
         <button
           onClick={() => deleteBook(id)}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-all mr-2"
+          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-all"
         >
           Delete
         </button>
-        {/* Edit Link */}
         <Link
           href={{
             pathname: "/books/edit",
             query: { id, title, author, price },
           }}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all"
+          className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-all"
         >
           Edit
         </Link>
