@@ -66,13 +66,22 @@ export async function PUT(req: Request) {
   }
 }
 
+export async function DELETE(req: Request) {
+  const url = new URL(req.url);
+  const id = url.searchParams.get("id");
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  const { id } = params;
   if (!id) {
     return new Response(JSON.stringify({ error: "Book ID is required" }), { status: 400 });
   }
-  await prisma.book.delete({ where: { id } });
-  return new Response(null, { status: 204 });
+
+  try {
+    await prisma.book.delete({
+      where: { id },
+    });
+
+    return new Response(null, { status: 204 }); // Return no content on successful deletion
+  } catch (error) {
+    console.error("Error deleting book:", error);
+    return new Response(JSON.stringify({ error: "Failed to delete book" }), { status: 500 });
+  }
 }
-  

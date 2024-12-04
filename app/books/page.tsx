@@ -25,9 +25,16 @@ export default function BookListPage() {
   }, []);
 
   const deleteBook = async (id: string) => {
-    await fetch(`/api/books/${id}`, { method: "DELETE" });
-    setBooks((prevBooks) => prevBooks.filter((book) => book.id !== id));
-  };
+    const userConfirmed = window.confirm("Are you sure you want to delete this book?");
+    if (!userConfirmed) return;
+    const response = await fetch(`/api/books?id=${id}`, { method: "DELETE" });
+  
+    if (response.ok) {
+      setBooks((prevBooks) => prevBooks.filter((book) => book.id !== id));
+    } else {
+      console.error("Failed to delete book");
+    }
+  };  
 
   return (
     <div className="container mx-auto p-4">
