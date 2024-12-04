@@ -14,6 +14,8 @@ type Book = {
 
 export default function BookListPage() {
   const [books, setBooks] = useState<Book[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -24,17 +26,30 @@ export default function BookListPage() {
     fetchBooks();
   }, []);
 
-  const deleteBook = async (id: string) => {
-    const userConfirmed = window.confirm("Are you sure you want to delete this book?");
-    if (!userConfirmed) return;
-    const response = await fetch(`/api/books?id=${id}`, { method: "DELETE" });
+  const confirmDeleteBook = (id: string) => {
+    setBookToDelete(id);
+    setShowModal(true);
+  };
+
+  const deleteBook = async () => {
+    if (!bookToDelete) return;
+
+    const response = await fetch(`/api/books?id=${bookToDelete}`, { method: "DELETE" });
   
     if (response.ok) {
-      setBooks((prevBooks) => prevBooks.filter((book) => book.id !== id));
+      setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookToDelete));
+      console.log(`Book with ID ${bookToDelete} deleted successfully.`);
     } else {
       console.error("Failed to delete book");
     }
-  };  
+    setShowModal(false);
+    setBookToDelete(null);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setBookToDelete(null);
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -56,10 +71,33 @@ export default function BookListPage() {
             author={book.author}
             price={book.price}
             image={book.image || null}
-            deleteBook={deleteBook}
+            deleteBook={confirmDeleteBook}
           />
         ))}
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded shadow-md">
+            <h2 className="text-lg font-bold mb-4 text-black">Delete this book?</h2>
+            <p className="mb-4 text-black">Do you really want to delete this book? This action cannot be undone.</p>
+            <div className="flex justify-end">
+              <button
+                onClick={closeModal}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-all mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteBook}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-all"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
