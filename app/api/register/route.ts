@@ -8,8 +8,22 @@ export async function POST(req: Request) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ username }, { email }],
+      },
+    });
+    if (existingUser) {
+      if (existingUser.username === username) {
+        return NextResponse.json({ error: "This username has already taken" }, { status: 400 });
+      }
+      if (existingUser.email === email) {
+        return NextResponse.json({ error: "This email has already been used" }, { status: 400 });
+      }
+    }
+
     const user = await prisma.user.create({
-      data: { username, email, password: hashedPassword, role },
+      data: { username, email, password: hashedPassword, role: "CUSTOMER" },
     });
     return NextResponse.json({ message: "User created", user }, { status: 201 });
   } catch (error) {

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import BookItem from "../components/BookItem";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Book = {
   id: string;
@@ -16,15 +17,53 @@ export default function BookListPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [bookToDelete, setBookToDelete] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchBooks = async () => {
-      const response = await fetch("/api/books");
-      const data: Book[] = await response.json();
-      setBooks(data);
+      const response = await fetch("/api/books", {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data: Book[] = await response.json();
+        setBooks(data);
+      } else {
+        alert("Please log in first!");
+        router.push("/login");
+      }
+    };
+    const fetchCurrentUser = async () => {
+      const response = await fetch("/api/me", {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentUser(data.username);
+      } else {
+        alert("Please log in first!");
+        router.push("/login");
+      }
     };
     fetchBooks();
-  }, []);
+    fetchCurrentUser();
+  }, [router]);
+
+
+  const handleLogout = async () => {
+    const response = await fetch("/api/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      alert("Successfully logged out.");
+      setCurrentUser(null);
+      router.push("/");
+    } else {
+      alert("Failed to log out.");
+    }
+  };
 
   const confirmDeleteBook = (id: string) => {
     setBookToDelete(id);
@@ -34,7 +73,10 @@ export default function BookListPage() {
   const deleteBook = async () => {
     if (!bookToDelete) return;
 
-    const response = await fetch(`/api/books?id=${bookToDelete}`, { method: "DELETE" });
+    const response = await fetch(`/api/books?id=${bookToDelete}`, { 
+      method: "DELETE",
+      credentials: "include",
+    });
   
     if (response.ok) {
       setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookToDelete));
@@ -53,7 +95,20 @@ export default function BookListPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold text-white mb-4">Manage Books</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold text-white">Manage Books</h1>
+        {currentUser && (
+          <div className="text-white">
+            Welcome, {currentUser} |{" "}
+            <button
+              onClick={handleLogout}
+              className="text-blue-500 hover:text-red-600"
+            >
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
       <div className="mb-4">
         <Link href="/books/add">
           <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-all">

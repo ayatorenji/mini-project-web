@@ -3,16 +3,17 @@
 import { useState } from "react";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -25,6 +26,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     try {
       loginSchema.parse(formData);
       const response = await fetch("/api/login", {
@@ -33,10 +35,13 @@ export default function LoginPage() {
         body: JSON.stringify(formData),
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        router.push("/");
+        alert(result.message);
+        router.push("/books");
       } else {
-        setError("Invalid credentials");
+        setError(result.error);
       }
     } catch (err: any) {
       setError(err.errors?.[0]?.message || "Invalid input");
@@ -49,15 +54,15 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded shadow-md w-full max-w-sm"
       >
-        <h1 className="text-xl font-bold mb-4">Login</h1>
+        <h1 className="text-xl font-bold mb-4 text-center text-black">Login</h1>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <input
-          type="email"
-          name="email"
-          value={formData.email}
+          type="username"
+          name="username"
+          value={formData.username}
           onChange={handleChange}
-          placeholder="Email"
-          className="w-full p-2 mb-4 border rounded"
+          placeholder="Username"
+          className="w-full p-2 mb-4 border rounded text-black"
         />
         <input
           type="password"
@@ -65,7 +70,7 @@ export default function LoginPage() {
           value={formData.password}
           onChange={handleChange}
           placeholder="Password"
-          className="w-full p-2 mb-4 border rounded"
+          className="w-full p-2 mb-4 border rounded text-black"
         />
         <button
           type="submit"
@@ -73,6 +78,17 @@ export default function LoginPage() {
         >
           Login
         </button>
+        <div className="mt-4 text-center">
+          <span className="text-gray-700">
+            Not have an account?{" "}
+          </span>
+          <Link
+            href="/register"
+            className="text-blue-500 underline hover:text-blue-600 transition duration-300"
+          >
+            Create an account
+          </Link>
+        </div>
       </form>
     </div>
   );
