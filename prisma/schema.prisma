@@ -16,6 +16,7 @@ model Book {
   author String
   price  String
   image  String?
+  Cart Cart[]
 }
 
 model User {
@@ -24,6 +25,18 @@ model User {
   email     String   @unique
   password  String
   role      String
+  Cart Cart[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  userId    String
+  bookId    String
+  quantity  Int      @default(1)
+  Book      Book     @relation(fields: [bookId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
