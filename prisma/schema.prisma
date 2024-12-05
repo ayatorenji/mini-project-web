@@ -37,7 +37,7 @@ model Cart {
   userId    String
   bookId    String
   quantity  Int      @default(1)
-  Book      Book     @relation(fields: [bookId], references: [id])
+  Book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   User      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -58,6 +58,6 @@ model OrderItem {
   orderId   String
   Order     Order    @relation(fields: [orderId], references: [id])
   bookId    String
-  Book      Book     @relation(fields: [bookId], references: [id])
+  Book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   quantity  Int
 }
