@@ -5,7 +5,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First thing first, you should use this 2 command
 
 ```bash
-npm I
+npm i
 #and
 npm install prisma @prisma/client
 ```
