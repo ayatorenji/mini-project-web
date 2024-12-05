@@ -69,6 +69,7 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
+  console.log("Deleting book with ID:", id);
 
   if (!id) {
     return new Response(JSON.stringify({ error: "Book ID is required" }), { status: 400 });
@@ -79,7 +80,7 @@ export async function DELETE(req: Request) {
       where: { id },
     });
 
-    return new Response(null, { status: 204 }); // Return no content on successful deletion
+    return new Response(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting book:", error);
     return new Response(JSON.stringify({ error: "Failed to delete book" }), { status: 500 });

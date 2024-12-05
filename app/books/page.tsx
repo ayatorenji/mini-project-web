@@ -171,7 +171,9 @@ export default function BookListPage() {
   const deleteBook = async () => {
     if (!bookToDelete) return;
 
-    const response = await fetch(`/api/books?id=${bookToDelete}`, { 
+    console.log("Book ID to delete:", bookToDelete);
+
+    const response = await fetch(`/api/books?id=${encodeURIComponent(bookToDelete)}`, { 
       method: "DELETE",
       credentials: "include",
     });
@@ -180,7 +182,8 @@ export default function BookListPage() {
       setBooks((prevBooks) => prevBooks.filter((book) => book.id !== bookToDelete));
       console.log(`Book with ID ${bookToDelete} deleted successfully.`);
     } else {
-      console.error("Failed to delete book");
+      const errorData = await response.json();
+      console.error("Failed to delete book", errorData.error);
     }
     setShowModal(false);
     setBookToDelete(null);
