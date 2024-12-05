@@ -2,16 +2,28 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+First thing first, you should use this 2 command
 
 ```bash
+npm I
+#and
+npm install prisma @prisma/client
+```
+
+After that create .env file in the root directory and add this
+```bash
+DATABASE_URL="file:./dev.db"
+```
+
+Then, run the Prisma server:
+
+```bash
+npx prisma studio
+```
+
+Lastly, run the development server:
+```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
