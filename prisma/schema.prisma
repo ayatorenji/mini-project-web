@@ -17,6 +17,7 @@ model Book {
   price  String
   image  String?
   Cart Cart[]
+  OrderItem OrderItem[]
 }
 
 model User {
@@ -26,6 +27,7 @@ model User {
   password  String
   role      String
   Cart Cart[]
+  orders    Order[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -39,4 +41,23 @@ model Cart {
   User      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  orderCode   String   @default(uuid())
+  userId      String
+  User        User     @relation(fields: [userId], references: [id])
+  status      String   @default("Waiting")
+  items       OrderItem[]
+  createdAt   DateTime @default(now())
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  Order     Order    @relation(fields: [orderId], references: [id])
+  bookId    String
+  Book      Book     @relation(fields: [bookId], references: [id])
+  quantity  Int
 }
