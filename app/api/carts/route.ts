@@ -78,3 +78,21 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Failed to update cart item" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  const userId = req.headers.get("user-id");
+
+  if (!userId) {
+    return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+  }
+
+  try {
+    await prisma.cart.deleteMany({
+      where: { userId },
+    });
+    return NextResponse.json({ message: "Cart cleared successfully" }, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Failed to clear cart" }, { status: 500 });
+  }
+}

@@ -89,6 +89,42 @@ export default function BookListPage() {
     setCartOpen(!cartOpen);
   };
 
+  const handleSubmit = async () => {
+    if (!currentUser) {
+      alert("You must be logged in to place an order.");
+      return;
+    }
+  
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: currentUser.id,
+          items: cartItems.map((item) => ({
+            bookId: item.Book.id,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+  
+      if (response.ok) {
+        await fetch("/api/carts", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json", "user-id": currentUser.id },
+        });
+
+        alert("Order placed successfully!");
+        setCartItems([]);
+        router.push("/status");
+      } else {
+        console.error("Failed to submit the order.");
+      }
+    } catch (error) {
+      console.error("Error submitting order:", error);
+    }
+  };  
+
   const handleQuantityChange = async (cartItemId: string, increment: boolean) => {
     const response = await fetch("/api/carts", {
       method: "PATCH",
@@ -162,6 +198,9 @@ export default function BookListPage() {
           <h1 className="text-2xl font-bold text-white">Manage Books</h1>
           {currentUser && (
             <div className="text-white">
+              <button onClick={() => router.push("/status")} className="mr-4 text-lg bg-gray-800 px-3 py-2 rounded hover:bg-gray-700">
+                ⚙️
+              </button>
               Welcome, {currentUser.username} {" "}
               {currentUser.role === "ADMIN" && "[Admin]"} |{" "}
               <button
@@ -180,7 +219,7 @@ export default function BookListPage() {
             </button>
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pl-4">
           {books.map((book, index) => (
             <BookItem
               key={book.id}
@@ -235,6 +274,9 @@ export default function BookListPage() {
         </div>
         {currentUser && (
           <div className="text-white">
+            <button onClick={() => router.push("/status")} className="mr-4 text-lg bg-gray-800 px-3 py-2 rounded hover:bg-gray-700">
+              📜
+            </button>
             <button
               onClick={handleCartToggle}
               className="mr-4 text-lg bg-gray-800 px-3 py-2 rounded hover:bg-gray-700"
@@ -299,7 +341,7 @@ export default function BookListPage() {
           </div>
           <div className="p-4 border-t bg-gray-100 flex justify-end">
             <button
-              // onClick={handleSubmit}
+              onClick={handleSubmit}
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-green-500"
             >
               Submit Order
@@ -307,7 +349,7 @@ export default function BookListPage() {
           </div>
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pl-4">
         {books.map((book, index) => (
           <BookItem
             key={book.id}
